@@ -3,6 +3,9 @@
 use std::path::PathBuf;
 
 pub mod redact;
+pub mod session;
+#[cfg(test)]
+pub mod testkit;
 pub mod text;
 
 /// Manifest name: the host forwards `gray recall ...` to this binary.
