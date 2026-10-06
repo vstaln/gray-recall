@@ -6,6 +6,7 @@ pub mod catchup;
 pub mod extract;
 pub mod index;
 pub mod project;
+pub mod query;
 pub mod redact;
 pub mod session;
 #[cfg(test)]
