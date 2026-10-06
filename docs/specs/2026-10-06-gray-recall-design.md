@@ -5,13 +5,17 @@ Date: 2026-10-06 · Status: draft for review
 ## Goal
 
 Searchable memory of past gray sessions. `~/.gray/sessions` holds 459 MB
-across 1,387 session files and nothing can search it. An agent or the user
+in about 820 session files (`*.jsonl`; the directory's other entries are
+lock and marker files) and nothing can search it. An agent or the user
 asks "has this come up before", "what fixed it", "what did we do to this
 file" and gets a few ranked, cited turns in roughly 500 tokens.
 
 The idea was proven with a throwaway prototype (Python extractor plus the
 leviathan CLI, in `/tmp/levgray`): 6,102 turns from 39 projects indexed in
 1.1 s into 24 MB, and three test queries returned the right turn first.
+gray-recall counts about 4,140 turns in the same files: an injected prompt
+(a background-job notice, a compaction summary) belongs to the turn it
+arrives in instead of starting its own, and abandoned branches are left out.
 
 ## Decisions
 
@@ -49,8 +53,9 @@ binary with no agent.
 | `query.rs` | Query parsing, project resolution, retrieval and ranking, fallback. |
 | `render.rs` | Text cards and `--json`. |
 
-Flow for every search, show or status call: `catch_up()`, then the query,
-then rendering.
+Flow for every search, show or projects call: `catch_up()`, then the query,
+then rendering. `status` is a diagnostic: it reports the index as it is,
+without catching up, and whether another process holds the writer lock.
 
 ## Data model
 
@@ -164,7 +169,9 @@ turn (redacted) plus `around` turns on each side, instead of searching.
 
 **Syntax:** plain words match any of them (OR) and turns matching more words
 rank higher; `"exact phrase"` is required; `-word` excludes. Exclusions
-with no words or phrases are a bad request. An empty query lists the newest turns in
+with no words or phrases are a bad request. On the command line and in
+`/recall`, one argument that contains spaces is a phrase, unless it already
+contains `"` or a `-word` (then it is read as written). An empty query lists the newest turns in
 scope. Dates: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, or relative `Nd` (days) / `Nw`
 (weeks) / `Nm` (months); `until` is inclusive.
 
@@ -209,7 +216,8 @@ next: recall id=<turn> around=2 for detail · resume: gray -r 1900bae3-…
   match, the turn's `gist`.
 - Lines are truncated so the whole output fits `max_chars`. The header always
   shows `shown N of M`, and zero results say "none found", not "none exist".
-- `--json` returns the same data as objects.
+- `--json` returns the same data as objects. It ignores `max_chars`; long
+  fields are capped one by one instead.
 
 ## Surfaces
 
