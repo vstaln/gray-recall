@@ -8,6 +8,7 @@ pub mod index;
 pub mod project;
 pub mod query;
 pub mod redact;
+pub mod render;
 pub mod session;
 #[cfg(test)]
 pub mod testkit;
