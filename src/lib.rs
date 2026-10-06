@@ -2,6 +2,7 @@
 
 use std::path::PathBuf;
 
+pub mod catchup;
 pub mod extract;
 pub mod index;
 pub mod project;
