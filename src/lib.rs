@@ -3,6 +3,7 @@
 use std::path::PathBuf;
 
 pub mod extract;
+pub mod index;
 pub mod project;
 pub mod redact;
 pub mod session;
