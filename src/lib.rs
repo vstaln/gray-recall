@@ -2,6 +2,7 @@
 
 use std::path::PathBuf;
 
+pub mod extract;
 pub mod redact;
 pub mod session;
 #[cfg(test)]
