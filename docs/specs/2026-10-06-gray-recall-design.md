@@ -151,10 +151,10 @@ around, json, max_chars (default 2500)`. With `id`, the call shows that full
 turn (redacted) plus `around` turns on each side, instead of searching.
 
 **Syntax:** plain words match any of them (OR) and turns matching more words
-rank higher; `"exact phrase"` is required; `-word` excludes. Only exclusions
-with no words is a bad request. An empty query lists the newest turns in
-scope. Dates: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, or relative `Nd` / `Nw` /
-`Nm`; `until` is inclusive.
+rank higher; `"exact phrase"` is required; `-word` excludes. Exclusions
+with no words or phrases are a bad request. An empty query lists the newest turns in
+scope. Dates: `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, or relative `Nd` (days) / `Nw`
+(weeks) / `Nm` (months); `until` is inclusive.
 
 **Scope:**
 
