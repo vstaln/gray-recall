@@ -415,6 +415,9 @@ pub fn tool_def() -> Value {
             }
         },
         "snippet": "recall <words> [project] [since]",
+        // Transcript display: headline + the arg shown as `Recall "<query>"`.
+        "label": "Recall",
+        "preview": "query",
     })
 }
 
