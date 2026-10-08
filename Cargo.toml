@@ -1,7 +1,7 @@
 [package]
 name = "gray-recall"
 license = "MIT"
-description = "Search past gray sessions: ranked, cited turns (wire v1.1)."
+description = "Search past gray sessions for ranked, cited prior work"
 version = "0.1.0"
 edition = "2024"
 
