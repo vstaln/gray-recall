@@ -1,27 +1,46 @@
-<p align="center">
-  <img src="assets/gray-logo.svg" alt="gray" width="96">
-</p>
-<h1 align="center">gray-recall</h1>
-<p align="center">Search past gray sessions for ranked, cited prior work.</p>
-<p align="center">
-  <a href="https://github.com/vstaln/gray-recall/blob/main/LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <img alt="gray plugin" src="https://img.shields.io/badge/gray-plugin-7aa2f7.svg">
-  <img alt="rust" src="https://img.shields.io/badge/built%20with-rust-orange.svg">
-</p>
+<div align="center">
+  <img alt="gray-recall" src="assets/gray-logo.svg" width="120" height="120" />
+  <h1>gray-recall</h1>
+  <p><strong>Search your past gray sessions for ranked, cited prior work.</strong><br/>"Has this come up before?" answered in about 500 tokens.</p>
+  <p>
+    <a href="https://gray.alignment.id">Website</a> ·
+    <a href="https://gray.alignment.id/plugins/gray-recall">Store</a> ·
+    <a href="https://github.com/vstaln/gray-recall/releases">Releases</a> ·
+    <a href="https://github.com/vstaln/gray">gray</a>
+  </p>
+  <p>
+    <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-1c1c20?style=flat-square&labelColor=0a0a0b" /></a>
+    <a href="https://www.rust-lang.org"><img alt="Built with Rust" src="https://img.shields.io/badge/built%20with-rust-1c1c20?style=flat-square&labelColor=0a0a0b&logo=rust&logoColor=d4a373" /></a>
+    <a href="https://gray.alignment.id/plugins/gray-recall"><img alt="gray plugin" src="https://img.shields.io/badge/gray-plugin-1c1c20?style=flat-square&labelColor=0a0a0b&color=7aa2f7" /></a>
+    <a href="https://github.com/vstaln/gray-recall/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/vstaln/gray-recall?style=flat-square&labelColor=0a0a0b&color=131316" /></a>
+  </p>
+</div>
 
-Ask "has this come up before", "what fixed it", or "what did we do to this
-file" and get a few ranked, cited turns in about 500 tokens.
+<br/>
 
-One binary, three surfaces, one argument syntax:
+gray-recall gives the agent a memory of its own past work. Ask "has this come up before", "what fixed it", or "what did we do to this file", and get a few ranked, cited turns from earlier sessions. Nothing is injected into prompts; the agent searches only when it asks.
 
-- **Tool `recall`** — the agent calls it when it wants history; nothing is
-  injected into prompts.
-- **`/recall …`** — inside a session, over `command/run`.
-- **`gray recall …`** — on the command line (`cli_argv` forwarding), with no
-  agent running.
+```bash
+gray plugin install gray-recall
+```
 
-```sh
+```bash
 gray recall search prefix cache warmup     # any word may match; more matches rank higher
+```
+
+## Why gray-recall
+
+| | |
+|---|---|
+| **Cited, not dumped** | Ranked cards with session ids and turn numbers. `show` opens any one turn in full. |
+| **Three surfaces, one syntax** | The `recall` tool for the agent, `/recall …` inside a session, and `gray recall …` on the command line with no agent running. |
+| **Cheap** | About 500 tokens per search. Output is capped with `--max-chars`, and `--json` gives machine-readable hits. |
+| **Local and private** | The index lives in `$GRAY_HOME/recall` (directory 0700, file 0600). No network. Secrets such as API keys and tokens are redacted before indexing. Raw command output is not indexed. |
+| **Always current** | Every search catches the index up first, reading only changed session files and only new bytes when a file grew. |
+
+## Usage
+
+```bash
 gray recall search '"prefix cache"' warm   # an "exact phrase" is required
 gray recall search 'sso -cookie'           # -word excludes; keep it inside one quoted argument
 gray recall search deploy --all --since 2w --failed -n 10
@@ -32,55 +51,41 @@ gray recall status                         # counts, size, last catch-up
 gray recall reindex                        # delete the index and rebuild it
 ```
 
-Start command-line searches with `search`. Without it the first word is
-still a search unless it is a subcommand name. Two exceptions:
-`gray recall manifest` prints the plugin manifest, and bare `gray recall`
-with non-terminal stdin runs the sidecar loop.
+| | |
+|---|---|
+| `recall` (tool) | the agent calls it when it wants history |
+| `/recall …` | inside a session, same arguments as the CLI |
+| `gray recall …` | on the command line, no agent running |
 
-One argument with spaces is a phrase: `gray recall search "prefix cache"`
-matches the words together because the shell (and `/recall`) pass it as one
-word. Add `-word` inside it to make it a word list with an exclusion.
+Searches are scoped to the current git repo by default. A worktree counts as its main repo. `-p <name or path>` picks one project, and `--all` searches everything. The calling session's own turns are left out.
 
-## Scope and output
-
-- Default scope is the current git repo (a worktree counts as its main
-  repo). With no hits, cards come from other projects and are labeled
-  `OTHER PROJECT`. `-p <name or path>` picks one project; `--all` searches
-  everything. The calling session's own turns are left out.
-- Text output fits `--max-chars` (default 2500 for search, 8000 for
-  `show`), and the header's `shown N of M` matches the printed cards.
-  `--json` ignores `--max-chars`; its fields are capped one by one.
-- Exit codes: 0 ok (including zero hits), 1 error, 2 bad request, 3 unknown
-  or ambiguous project/id. The tool sets `is_error` for 1–3.
-
-## Index
-
-`$GRAY_HOME/recall/index.db` (`~/.gray` by default; directory 0700, file
-0600). Every search, `show`, and `projects` call catches the index up first:
-only changed session files are read, and only new bytes when a file grew.
-While another session is catching up, answers come from the current index
-with `(index catching up in another session)` in the header.
-
-Secrets (API keys, tokens, `KEY=value` assignments, Discord bot tokens) are
-redacted before anything is written; file paths are kept. Raw command
-output is not indexed. No network, no `host/*` capabilities, no writes
-outside `$GRAY_HOME/recall`.
+Exit codes: `0` ok (including zero hits), `1` error, `2` bad request, `3` unknown or ambiguous project or id.
 
 ## Install
 
-```sh
+From the store (once listed):
+
+```bash
+gray plugin install gray-recall
+```
+
+From source:
+
+```bash
 cargo install --path . --locked
 gray plugin check ~/.cargo/bin/gray-recall
 gray plugin install ~/.cargo/bin/gray-recall
 ```
 
-`manifest` answers the install probe, so one install wires the sidecar,
-`/recall`, and `gray recall`.
+`manifest` answers the install probe, so one install wires the sidecar, `/recall`, and `gray recall`.
+
+## Tags
+
+`recall` · `search` · `sessions` · `memory` · `history` · `plugin` · `rust`
 
 ## License
 
-MIT. Third-party notices are in `NOTICE.md` and `THIRD_PARTY_NOTICES.md`.
+MIT. Third-party notices are in [`NOTICE.md`](NOTICE.md) and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 ---
-Part of the [gray](https://github.com/vstaln/gray) plugin ecosystem —
-the open-source AI agent harness. <https://gray.alignment.id>
+Part of the [gray](https://github.com/vstaln/gray) plugin ecosystem, the open-source AI agent harness. <https://gray.alignment.id>

@@ -44,6 +44,13 @@ fn sidecar_loop(home: &Path) -> anyhow::Result<()> {
         };
         let method = v["method"].as_str().unwrap_or("");
         if method == "plugin/shutdown" {
+            // Driver form (request with an id): acknowledge, then exit.
+            // Host form (notification, no id): exit silently.
+            if !v["id"].is_null() {
+                let mut out = stdout.lock();
+                writeln!(out, "{}", json!({"id": v["id"], "result": {}}))?;
+                out.flush()?;
+            }
             break;
         }
         // Notifications carry no id and get no reply.
