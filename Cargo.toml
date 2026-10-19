@@ -2,7 +2,7 @@
 name = "gray-recall"
 license = "MIT"
 description = "Search past gray sessions for ranked, cited prior work"
-version = "0.1.0"
+version = "0.1.2"
 edition = "2024"
 
 [dependencies]
