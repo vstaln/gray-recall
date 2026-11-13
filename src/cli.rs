@@ -428,6 +428,7 @@ pub fn manifest() -> Value {
         "protocol": PROTOCOL,
         "tools": [tool_def()],
         "commands": COMMANDS,
+        "command_descriptions": {"/recall": "search past sessions for earlier work"},
         "hooks": [],
         "completion": SUBCOMMANDS,
     })
