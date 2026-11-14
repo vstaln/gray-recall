@@ -12,6 +12,14 @@ use std::time::Instant;
 pub const TOOL_NAME: &str = "recall";
 /// Words that pick a subcommand when they come first.
 pub const SUBCOMMANDS: &[&str] = &["search", "show", "projects", "status", "reindex"];
+
+const SUBCOMMAND_DESCRIPTIONS: &[(&str, &str)] = &[
+    ("search", "search past sessions"),
+    ("show", "read one past turn"),
+    ("projects", "list projects with history"),
+    ("status", "index size and freshness"),
+    ("reindex", "rebuild the index"),
+];
 const PASS_THROUGH: &[&str] = &["-h", "--help", "-V", "--version"];
 const TOOL_DESCRIPTION: &str = "Search this machine's past gray sessions for prior work: how a bug was fixed before, \
     what was decided and why, what was done in a project, the history of a file. Returns short cards (the prompt, \
@@ -427,10 +435,21 @@ pub fn manifest() -> Value {
         "version": env!("CARGO_PKG_VERSION"),
         "protocol": PROTOCOL,
         "tools": [tool_def()],
+        "description": "search past sessions for earlier work",
         "commands": COMMANDS,
         "command_descriptions": {"/recall": "search past sessions for earlier work"},
         "hooks": [],
-        "completion": SUBCOMMANDS,
+        "completion": SUBCOMMANDS
+            .iter()
+            .map(|arg| {
+                let description = SUBCOMMAND_DESCRIPTIONS
+                    .iter()
+                    .find(|(verb, _)| verb == arg)
+                    .map(|(_, description)| *description)
+                    .unwrap_or_default();
+                serde_json::json!({"arg": arg, "description": description})
+            })
+            .collect::<Vec<_>>(),
     })
 }
 

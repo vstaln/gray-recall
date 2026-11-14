@@ -267,7 +267,13 @@ fn the_manifest_declares_the_tool_and_command() {
         (m["commands"].clone(), m["hooks"].clone()),
         (json!(["/recall"]), json!([]))
     );
-    assert_eq!(m["completion"], json!(SUBCOMMANDS));
+    let args: Vec<&str> = m["completion"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|entry| entry["arg"].as_str().unwrap())
+        .collect();
+    assert_eq!(args, SUBCOMMANDS);
     let tool = &m["tools"][0];
     assert_eq!(
         (tool["name"].as_str(), tool["parameters"]["type"].as_str()),
