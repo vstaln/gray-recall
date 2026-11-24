@@ -58,11 +58,15 @@ fn sidecar_loop(home: &Path) -> anyhow::Result<()> {
         if id.is_null() {
             continue;
         }
-        let Some(result) = handle(home, method, &v["params"]) else {
-            continue;
+        let reply = match handle(home, method, &v["params"]) {
+            Some(result) => json!({"id": id, "result": result}),
+            None => json!({
+                "id": id,
+                "error": {"code": -32601, "message": format!("method not found: {method}")}
+            }),
         };
         let mut out = stdout.lock();
-        writeln!(out, "{}", json!({"id": id, "result": result}))?;
+        writeln!(out, "{reply}")?;
         out.flush()?;
     }
     Ok(())
