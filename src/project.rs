@@ -3,7 +3,7 @@
 
 use crate::extract::{lexical, slashed};
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Project {
@@ -52,7 +52,11 @@ pub fn project_for(cwd: &str) -> Project {
     }
     let path = lexical(path);
     let root = git_root(&path).unwrap_or(path);
-    let key = slashed(&root);
+    let key = if matches!(root.components().next(), Some(Component::Prefix(_))) {
+        root.to_string_lossy().into_owned()
+    } else {
+        slashed(&root)
+    };
     let name = root
         .file_name()
         .map_or_else(|| key.clone(), |n| n.to_string_lossy().into_owned());
