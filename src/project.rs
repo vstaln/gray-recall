@@ -44,7 +44,7 @@ fn main_repo(dir: &Path, dot: &Path) -> Option<PathBuf> {
 
 pub fn project_for(cwd: &str) -> Project {
     let path = Path::new(cwd);
-    if cwd.is_empty() || !path.is_absolute() {
+    if cwd.is_empty() || !path.has_root() {
         return Project {
             key: cwd.to_string(),
             name: "unknown".into(),
