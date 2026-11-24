@@ -98,6 +98,15 @@ pub fn extract(turn: &Turn, cwd: &Path, root: &Path) -> Extracted {
 }
 
 /// `.` and `..` resolved lexically: no disk access, symlinks are not followed.
+pub fn slashed(path: &Path) -> String {
+    let s = path.to_string_lossy();
+    if cfg!(windows) {
+        s.replace('\\', "/")
+    } else {
+        s.into_owned()
+    }
+}
+
 pub fn lexical(path: &Path) -> PathBuf {
     let mut out = PathBuf::new();
     for c in path.components() {
@@ -164,8 +173,8 @@ impl Files<'_> {
             };
             match rel {
                 Some(r) if r.as_os_str().is_empty() => return,
-                Some(r) => r.to_string_lossy().into_owned(),
-                None => abs.to_string_lossy().into_owned(),
+                Some(r) => slashed(r),
+                None => slashed(&abs),
             }
         };
         if !self.out.contains(&path) {

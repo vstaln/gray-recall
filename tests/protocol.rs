@@ -96,6 +96,11 @@ fn the_sidecar_serves_the_manifest_tool_and_command_then_shuts_down() {
         (m["id"].as_i64(), m["result"]["name"].as_str()),
         (Some(1), Some("recall"))
     );
+    let unknown = next();
+    assert_eq!(
+        (unknown["id"].as_i64(), unknown["error"]["code"].as_i64()),
+        (Some(2), Some(-32601))
+    );
     let hit = next();
     assert_eq!(
         (hit["id"].as_i64(), hit["result"]["is_error"].as_bool()),
