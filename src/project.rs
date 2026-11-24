@@ -1,7 +1,7 @@
 //! A session cwd to its project: the git repository root, with worktrees
 //! mapped to their main repository; the cwd itself outside a repository.
 
-use crate::extract::lexical;
+use crate::extract::{lexical, slashed};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
@@ -52,7 +52,7 @@ pub fn project_for(cwd: &str) -> Project {
     }
     let path = lexical(path);
     let root = git_root(&path).unwrap_or(path);
-    let key = root.to_string_lossy().into_owned();
+    let key = slashed(&root);
     let name = root
         .file_name()
         .map_or_else(|| key.clone(), |n| n.to_string_lossy().into_owned());
